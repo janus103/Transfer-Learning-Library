@@ -7,6 +7,7 @@ import os
 from torchvision.datasets.imagenet import ImageNet
 from .imagelist import ImageList
 from ._util import download as download_data, check_exits
+import time
 
 
 class ImageNetSketch(ImageList):
@@ -55,6 +56,9 @@ class ImageNetSketch(ImageList):
         assert split in ["train", "val", "all"]
         if task == "IN" and split == "val":
             task = "IN-val"
+        print('split : ',split)
+        #donwload = False
+        print('Download : ',download)
 
         data_list_file = os.path.join(root, self.image_list[task])
 
@@ -62,8 +66,9 @@ class ImageNetSketch(ImageList):
             list(map(lambda args: download_data(root, *args), self.download_list))
         else:
             list(map(lambda file_name, _: check_exits(root, file_name), self.download_list))
-
-        super(ImageNetSketch, self).__init__(root, ImageNet(root).classes, data_list_file=data_list_file, **kwargs)
+        ImageNet_instance = ImageNet(root)
+        print('instance_classes: ', ImageNet_instance.classes[0])
+        super(ImageNetSketch, self).__init__(root, ImageNet_instance.classes, data_list_file=data_list_file, **kwargs)
 
     @classmethod
     def domains(cls):

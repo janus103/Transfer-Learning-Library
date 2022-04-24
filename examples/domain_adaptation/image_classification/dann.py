@@ -2,6 +2,7 @@
 @author: Junguang Jiang
 @contact: JiangJunguang1123@outlook.com
 """
+ROOT_CODE_DIR = 'C:/Users/shinj/Source/Repos/Transfer-Learning-Library'
 import random
 import time
 import warnings
@@ -18,7 +19,33 @@ from torch.optim.lr_scheduler import LambdaLR
 from torch.utils.data import DataLoader
 import torch.nn.functional as F
 
-sys.path.append('../../..')
+import os
+
+root_code_dir = os.path.abspath(ROOT_CODE_DIR)
+#print(root_code_dir)
+sys.path.append(root_code_dir)
+
+def registry_dirs(cur,count):
+    loc_count = count + 1
+    dirs = os.listdir(cur)
+    if count > 2:
+        return
+    for dir in dirs:
+        cur_dir = str(cur).replace('\\','/') +'/' + dir
+        if os.path.isdir(cur_dir) and cur_dir.find('.') < 0 :
+            #print(cur_dir)
+            sys.path.append(os.path.abspath(cur_dir))
+            registry_dirs(os.path.abspath(cur_dir), loc_count)
+        else:
+            pass
+        
+
+#registry_dirs(ROOT_CODE_DIR, 0)
+        
+
+
+import utils
+
 from dalib.modules.domain_discriminator import DomainDiscriminator
 from dalib.adaptation.dann import DomainAdversarialLoss, ImageClassifier
 from common.utils.data import ForeverDataIterator
@@ -27,8 +54,6 @@ from common.utils.meter import AverageMeter, ProgressMeter
 from common.utils.logger import CompleteLogger
 from common.utils.analysis import collect_feature, tsne, a_distance
 
-sys.path.append('.')
-import utils
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

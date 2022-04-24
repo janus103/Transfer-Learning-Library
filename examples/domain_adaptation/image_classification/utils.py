@@ -2,6 +2,9 @@
 @author: Junguang Jiang, Baixu Chen
 @contact: JiangJunguang1123@outlook.com, cbx_99_hasta@outlook.com
 """
+
+ROOT_CODE_DIR = 'C:/Users/shinj/Source/Repos/Transfer-Learning-Library'
+
 import sys
 import os.path as osp
 import time
@@ -13,9 +16,33 @@ import torchvision.transforms as T
 from torch.utils.data import ConcatDataset
 import wilds
 
-sys.path.append('../../..')
+import os
+
+root_code_dir = os.path.abspath(ROOT_CODE_DIR)
+#print(root_code_dir)
+sys.path.append(root_code_dir)
+
+def registry_dirs(cur,count):
+    loc_count = count + 1
+    dirs = os.listdir(cur)
+    if count > 2:
+        return
+    for dir in dirs:
+        cur_dir = str(cur).replace('\\','/') +'/' + dir
+        if os.path.isdir(cur_dir) and cur_dir.find('.') < 0 :
+            #print(cur_dir)
+            sys.path.append(os.path.abspath(cur_dir))
+            registry_dirs(os.path.abspath(cur_dir), loc_count)
+        else:
+            pass
+        
+
+#registry_dirs(ROOT_CODE_DIR, 0)
+
 import common.vision.datasets as datasets
+#from common.vision import datasets as datasets
 import common.vision.models as models
+#from common.vision import models as models
 from common.vision.transforms import ResizeImage
 from common.utils.metric import accuracy, ConfusionMatrix
 from common.utils.meter import AverageMeter, ProgressMeter
@@ -82,7 +109,7 @@ def get_dataset(dataset_name, root, source, target, train_source_transform, val_
     elif dataset_name in datasets.__dict__:
         # load datasets from common.vision.datasets
         dataset = datasets.__dict__[dataset_name]
-
+        
         def concat_dataset(tasks, **kwargs):
             return ConcatDataset([dataset(task=task, **kwargs) for task in tasks])
 
@@ -104,6 +131,26 @@ def get_dataset(dataset_name, root, source, target, train_source_transform, val_
         train_target_dataset = convert_from_wilds_dataset(dataset.get_subset('test', transform=train_target_transform))
         val_dataset = test_dataset = convert_from_wilds_dataset(dataset.get_subset('test', transform=val_transform))
     return train_source_dataset, train_target_dataset, val_dataset, test_dataset, num_classes, class_names
+
+def get_dataset_only(dataset_name, root, source, train_source_transform):
+    if dataset_name in datasets.__dict__:
+        # load datasets from common.vision.datasets
+        dataset = datasets.__dict__[dataset_name]
+        
+        def concat_dataset(tasks, **kwargs):
+            return ConcatDataset([dataset(task=task, **kwargs) for task in tasks])
+
+        train_source_dataset = concat_dataset(root=root, tasks=source, download=True, transform=train_source_transform)
+        class_names = train_source_dataset.datasets[0].classes
+        num_classes = len(class_names)
+    else:
+        pass
+    print('--> ', train_source_dataset)
+    print('--> ', num_classes)
+    print('--> ', len(class_names))
+    
+    
+    return train_source_dataset, num_classes, class_names
 
 
 def validate(val_loader, model, args, device) -> float:
@@ -171,6 +218,16 @@ def get_train_transform(resizing='default', random_horizontal_flip=True, random_
             ResizeImage(256),
             T.CenterCrop(224)
         ])
+    elif resizing == 'custom.source':
+        transform = T.Compose([
+            ResizeImage(448),
+            T.CenterCrop(448)
+        ])
+    elif resizing == 'custom.target':
+        transform = T.Compose([
+            ResizeImage(224),
+            T.CenterCrop(224)
+        ])
     elif resizing == 'ran.crop':
         transform = T.Compose([
             ResizeImage(256),
@@ -203,6 +260,16 @@ def get_val_transform(resizing='default', resize_size=224,
         transform = T.Compose([
             ResizeImage(256),
             T.CenterCrop(224),
+        ])
+    elif resizing == 'custom.source':
+        transform = T.Compose([
+            ResizeImage(448),
+            T.CenterCrop(448)
+        ])
+    elif resizing == 'custom.target':
+        transform = T.Compose([
+            ResizeImage(224),
+            T.CenterCrop(224)
         ])
     elif resizing == 'res.':
         transform = ResizeImage(resize_size)
