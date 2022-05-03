@@ -1,0 +1,52 @@
+Namespace(arch='resnet50', batch_size=16, bottleneck_dim=256, data='ImageNet50', epochs=20, iters_per_epoch=1000, log='dann', lr=0.01, lr_decay=0.75, lr_gamma=0.001, momentum=0.9, no_hflip=False, no_pool=False, norm_mean=(0.485, 0.456, 0.406), norm_std=(0.229, 0.224, 0.225), per_class_eval=False, phase='test', print_freq=100, resize_size=224, root='/data/ImageNet_dataset/v100/jin/', scratch=False, seed=None, source=['IN'], target=['gray-val'], trade_off=1.0, train_resizing='custom.target', val_resizing='custom.target', weight_decay=0.001, workers=2)
+train_transform:  Compose(
+    Compose(
+    ResizeImage(size=(224, 224))
+    CenterCrop(size=(224, 224))
+)
+    RandomHorizontalFlip(p=0.5)
+    ToTensor()
+    Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225))
+)
+val_transform:  Compose(
+    Compose(
+    ResizeImage(size=(224, 224))
+    CenterCrop(size=(224, 224))
+)
+    ToTensor()
+    Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225))
+)
+=> using model 'resnet50'
+Traceback (most recent call last):
+  File "dann.py", line 290, in <module>
+    main(args)
+  File "dann.py", line 135, in main
+    acc1 = utils.validate(test_loader, classifier, args, device)
+  File "/src/Transfer-Learning-Library/examples/domain_adaptation/image_classification/utils.py", line 174, in validate
+    for i, (images, target) in enumerate(val_loader):
+  File "/opt/conda/lib/python3.6/site-packages/torch/utils/data/dataloader.py", line 517, in __next__
+    data = self._next_data()
+  File "/opt/conda/lib/python3.6/site-packages/torch/utils/data/dataloader.py", line 1199, in _next_data
+    return self._process_data(data)
+  File "/opt/conda/lib/python3.6/site-packages/torch/utils/data/dataloader.py", line 1225, in _process_data
+    data.reraise()
+  File "/opt/conda/lib/python3.6/site-packages/torch/_utils.py", line 429, in reraise
+    raise self.exc_type(msg)
+FileNotFoundError: Caught FileNotFoundError in DataLoader worker process 0.
+Original Traceback (most recent call last):
+  File "/opt/conda/lib/python3.6/site-packages/torch/utils/data/_utils/worker.py", line 202, in _worker_loop
+    data = fetcher.fetch(index)
+  File "/opt/conda/lib/python3.6/site-packages/torch/utils/data/_utils/fetch.py", line 44, in fetch
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "/opt/conda/lib/python3.6/site-packages/torch/utils/data/_utils/fetch.py", line 44, in <listcomp>
+    data = [self.dataset[idx] for idx in possibly_batched_index]
+  File "/opt/conda/lib/python3.6/site-packages/torch/utils/data/dataset.py", line 219, in __getitem__
+    return self.datasets[dataset_idx][sample_idx]
+  File "/src/Transfer-Learning-Library/common/vision/datasets/imagelist.py", line 50, in __getitem__
+    img = self.loader(path)
+  File "/opt/conda/lib/python3.6/site-packages/torchvision/datasets/folder.py", line 215, in default_loader
+    return pil_loader(path)
+  File "/opt/conda/lib/python3.6/site-packages/torchvision/datasets/folder.py", line 195, in pil_loader
+    with open(path, 'rb') as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/data/ImageNet_dataset/v100/jin/imagenet_gray/val/n02106382/n02106382_13800.JPEG'
+

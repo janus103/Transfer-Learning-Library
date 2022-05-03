@@ -78,13 +78,17 @@ def main(args: argparse.Namespace):
     train_transform = utils.get_train_transform(args.train_resizing, random_horizontal_flip=not args.no_hflip,
                                                 random_color_jitter=False, resize_size=args.resize_size,
                                                 norm_mean=args.norm_mean, norm_std=args.norm_std)
+    target_train_transform = utils.get_target_train_transform(args.train_resizing, random_horizontal_flip=not args.no_hflip,
+                                                random_color_jitter=False, resize_size=args.resize_size,
+                                                norm_mean=args.norm_mean, norm_std=args.norm_std)
     val_transform = utils.get_val_transform(args.val_resizing, resize_size=args.resize_size,
                                             norm_mean=args.norm_mean, norm_std=args.norm_std)
-    print("train_transform: ", train_transform)
+    print("source train_transform: ", train_transform)
+    print("target train_transform: ", target_train_transform)
     print("val_transform: ", val_transform)
 
     train_source_dataset, train_target_dataset, val_dataset, test_dataset, num_classes, args.class_names = \
-        utils.get_dataset(args.data, args.root, args.source, args.target, train_transform, val_transform)
+        utils.get_dataset(args.data, args.root, args.source, args.target, train_transform, val_transform, train_target_transform=target_train_transform)
     train_source_loader = DataLoader(train_source_dataset, batch_size=args.batch_size,
                                      shuffle=True, num_workers=args.workers, drop_last=True)
     train_target_loader = DataLoader(train_target_dataset, batch_size=args.batch_size,
@@ -185,6 +189,12 @@ def train(train_source_iter: ForeverDataIterator, train_target_iter: ForeverData
         x_s, labels_s = next(train_source_iter)
         x_t, _ = next(train_target_iter)
 
+        #print(x_t[0][0])
+        print('source shape ',x_s.shape)
+        print(x_t.shape)
+        #print(x_t[0][1])
+        #print(x_t[0][2])
+
         x_s = x_s.to(device)
         x_t = x_t.to(device)
         labels_s = labels_s.to(device)
@@ -193,10 +203,14 @@ def train(train_source_iter: ForeverDataIterator, train_target_iter: ForeverData
         data_time.update(time.time() - end)
 
         # compute output
+        '''
         x = torch.cat((x_s, x_t), dim=0)
         y, f = model(x)
         y_s, y_t = y.chunk(2, dim=0)
         f_s, f_t = f.chunk(2, dim=0)
+        '''
+        y_s, f_s = model(x_s)
+        y_t, f_t = model(x_t)
 
         cls_loss = F.cross_entropy(y_s, labels_s)
         transfer_loss = domain_adv(f_s, f_t)

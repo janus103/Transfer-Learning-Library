@@ -1,0 +1,23 @@
+Namespace(arch='resnet50', batch_size=16, bottleneck_dim=256, data='ImageNet50', epochs=20, iters_per_epoch=1000, log='dann', lr=0.01, lr_decay=0.75, lr_gamma=0.001, momentum=0.9, no_hflip=False, no_pool=False, norm_mean=(0.485, 0.456, 0.406), norm_std=(0.229, 0.224, 0.225), per_class_eval=False, phase='test', print_freq=100, resize_size=224, root='/data/ImageNet_dataset/v100/jin/', scratch=False, seed=None, source=['IN'], target=['IN-test'], trade_off=1.0, train_resizing='custom.target', val_resizing='custom.target', weight_decay=0.001, workers=2)
+train_transform:  Compose(
+    Compose(
+    ResizeImage(size=(224, 224))
+    CenterCrop(size=(224, 224))
+)
+    RandomHorizontalFlip(p=0.5)
+    ToTensor()
+    Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225))
+)
+val_transform:  Compose(
+    Compose(
+    ResizeImage(size=(224, 224))
+    CenterCrop(size=(224, 224))
+)
+    ToTensor()
+    Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225))
+)
+=> using model 'resnet50'
+Test: [  0/157]	Time  0.922 ( 0.922)	Loss 7.2870e-01 (7.2870e-01)	Acc@1  87.50 ( 87.50)
+Test: [100/157]	Time  0.115 ( 0.069)	Loss 3.4706e-03 (4.7402e-01)	Acc@1 100.00 ( 88.68)
+ * Acc@1 90.240
+90.24

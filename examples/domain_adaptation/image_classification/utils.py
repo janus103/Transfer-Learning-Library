@@ -3,7 +3,9 @@
 @contact: JiangJunguang1123@outlook.com, cbx_99_hasta@outlook.com
 """
 
-ROOT_CODE_DIR = 'C:/Users/shinj/Source/Repos/Transfer-Learning-Library'
+#ROOT_CODE_DIR = '/src/Transfer-Learning-Library'
+ROOT_CODE_DIR = '/home/jin2/pytorch-image-models/Transfer-Learning-Library'
+
 
 import sys
 import os.path as osp
@@ -37,7 +39,7 @@ def registry_dirs(cur,count):
             pass
         
 
-#registry_dirs(ROOT_CODE_DIR, 0)
+registry_dirs(ROOT_CODE_DIR, 0)
 
 import common.vision.datasets as datasets
 #from common.vision import datasets as datasets
@@ -97,6 +99,9 @@ def get_dataset_names():
 def get_dataset(dataset_name, root, source, target, train_source_transform, val_transform, train_target_transform=None):
     if train_target_transform is None:
         train_target_transform = train_source_transform
+        print('train_target_transform is None')
+    else:
+        print('train_target_transform is Not None')
     if dataset_name == "Digits":
         train_source_dataset = datasets.__dict__[source[0]](osp.join(root, source[0]), download=True,
                                                             transform=train_source_transform)
@@ -243,11 +248,60 @@ def get_train_transform(resizing='default', random_horizontal_flip=True, random_
     if random_color_jitter:
         transforms.append(T.ColorJitter(brightness=0.5, contrast=0.5, saturation=0.5, hue=0.5))
     transforms.extend([
-        T.ToTensor(),
-        T.Normalize(mean=norm_mean, std=norm_std)
+        T.ToTensor()
+        #T.Normalize(mean=norm_mean, std=norm_std)
     ])
     return T.Compose(transforms)
 
+def get_target_train_transform(resizing='default', random_horizontal_flip=True, random_color_jitter=False,
+                        resize_size=224, norm_mean=(0.485, 0.456, 0.406), norm_std=(0.229, 0.224, 0.225)):
+    """
+    resizing mode:
+        - default: resize the image to 256 and take a random resized crop of size 224;
+        - cen.crop: resize the image to 256 and take the center crop of size 224;
+        - res: resize the image to 224;
+    """
+    if resizing == 'default':
+        transform = T.Compose([
+            ResizeImage(256),
+            T.RandomResizedCrop(224)
+        ])
+    elif resizing == 'cen.crop':
+        transform = T.Compose([
+            ResizeImage(256),
+            T.CenterCrop(224)
+        ])
+    elif resizing == 'custom.source':
+        transform = T.Compose([
+            ResizeImage(448),
+            T.CenterCrop(448),
+            T.Grayscale(num_output_channels=1)
+        ])
+    elif resizing == 'custom.target':
+        transform = T.Compose([
+            ResizeImage(224),
+            T.CenterCrop(224),
+            T.Grayscale(num_output_channels=1)
+        ])
+    elif resizing == 'ran.crop':
+        transform = T.Compose([
+            ResizeImage(256),
+            T.RandomCrop(224)
+        ])
+    elif resizing == 'res.':
+        transform = ResizeImage(resize_size)
+    else:
+        raise NotImplementedError(resizing)
+    transforms = [transform]
+    if random_horizontal_flip:
+        transforms.append(T.RandomHorizontalFlip())
+    if random_color_jitter:
+        transforms.append(T.ColorJitter(brightness=0.5, contrast=0.5, saturation=0.5, hue=0.5))
+    transforms.extend([
+        T.ToTensor()
+        #T.Normalize(mean=norm_mean, std=norm_std)
+    ])
+    return T.Compose(transforms)
 
 def get_val_transform(resizing='default', resize_size=224,
                       norm_mean=(0.485, 0.456, 0.406), norm_std=(0.229, 0.224, 0.225)):
@@ -271,14 +325,26 @@ def get_val_transform(resizing='default', resize_size=224,
             ResizeImage(224),
             T.CenterCrop(224)
         ])
+    elif resizing == 'custom.source.gray':
+        transform = T.Compose([
+            ResizeImage(448),
+            T.CenterCrop(448),
+            T.Grayscale(num_output_channels=1)
+        ])
+    elif resizing == 'custom.target.gray':
+        transform = T.Compose([
+            ResizeImage(224),
+            T.CenterCrop(224),
+            T.Grayscale(num_output_channels=1)
+        ])
     elif resizing == 'res.':
         transform = ResizeImage(resize_size)
     else:
         raise NotImplementedError(resizing)
     return T.Compose([
         transform,
-        T.ToTensor(),
-        T.Normalize(mean=norm_mean, std=norm_std)
+        T.ToTensor()
+        #T.Normalize(mean=norm_mean, std=norm_std)
     ])
 
 
