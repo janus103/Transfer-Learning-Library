@@ -21,7 +21,8 @@ from .retinopathy import Retinopathy
 from .eurosat import EuroSAT
 from .resisc45 import Resisc45
 from .jin_custom import A37
+from .imagenet50 import ImageNet50
 
 __all__ = ['ImageList', 'Office31', 'OfficeHome', "VisDA2017", "OfficeCaltech", "DomainNet", "ImageNetR", "ImageNetSketch",
            "Aircraft", "cub200", "StanfordCars", "StanfordDogs", "COCO70", "OxfordIIITPet", "PACS", "DTD",
-           "OxfordFlowers102", "PatchCamelyon", "Retinopathy", "EuroSAT", "Resisc45", "JIN_CUSTOM"]
+           "OxfordFlowers102", "PatchCamelyon", "Retinopathy", "EuroSAT", "Resisc45", "JIN_CUSTOM", "ImageNet50"]

@@ -21,6 +21,8 @@ import torch.nn.functional as F
 
 import os
 
+import pytorch_model_summary as pms
+
 root_code_dir = os.path.abspath(ROOT_CODE_DIR)
 #print(root_code_dir)
 sys.path.append(root_code_dir)
@@ -86,6 +88,8 @@ def main(args: argparse.Namespace):
     print("source train_transform: ", train_transform)
     print("target train_transform: ", target_train_transform)
     print("val_transform: ", val_transform)
+    print("norm_mean: ", args.norm_mean)
+    print("norm_std: ", args.norm_std)
 
     train_source_dataset, train_target_dataset, val_dataset, test_dataset, num_classes, args.class_names = \
         utils.get_dataset(args.data, args.root, args.source, args.target, train_transform, val_transform, train_target_transform=target_train_transform)
@@ -106,6 +110,7 @@ def main(args: argparse.Namespace):
     classifier = ImageClassifier(backbone, num_classes, bottleneck_dim=args.bottleneck_dim,
                                  pool_layer=pool_layer, finetune=not args.scratch).to(device)
     domain_discri = DomainDiscriminator(in_feature=classifier.features_dim, hidden_size=1024).to(device)
+   
 
     # define optimizer and lr scheduler
     optimizer = SGD(classifier.get_parameters() + domain_discri.get_parameters(),
@@ -188,13 +193,7 @@ def train(train_source_iter: ForeverDataIterator, train_target_iter: ForeverData
     for i in range(args.iters_per_epoch):
         x_s, labels_s = next(train_source_iter)
         x_t, _ = next(train_target_iter)
-
-        #print(x_t[0][0])
-        print('source shape ',x_s.shape)
-        print(x_t.shape)
-        #print(x_t[0][1])
-        #print(x_t[0][2])
-
+        
         x_s = x_s.to(device)
         x_t = x_t.to(device)
         labels_s = labels_s.to(device)
@@ -211,7 +210,6 @@ def train(train_source_iter: ForeverDataIterator, train_target_iter: ForeverData
         '''
         y_s, f_s = model(x_s)
         y_t, f_t = model(x_t)
-
         cls_loss = F.cross_entropy(y_s, labels_s)
         transfer_loss = domain_adv(f_s, f_t)
         domain_acc = domain_adv.domain_discriminator_accuracy
@@ -263,7 +261,7 @@ if __name__ == '__main__':
                         help='backbone architecture: ' +
                              ' | '.join(utils.get_model_names()) +
                              ' (default: resnet18)')
-    parser.add_argument('--bottleneck-dim', default=256, type=int,
+    parser.add_argument('--bottleneck-dim', default=512, type=int,
                         help='Dimension of bottleneck')
     parser.add_argument('--no-pool', action='store_true',
                         help='no pool layer after the feature extractor.')
@@ -289,6 +287,8 @@ if __name__ == '__main__':
                         help='number of total epochs to run')
     parser.add_argument('-i', '--iters-per-epoch', default=1000, type=int,
                         help='Number of iterations per epoch')
+    parser.add_argument('--save_check_seq', default=0, type=int,
+                        help='--save_check_seq is  sequence of checkpoint')
     parser.add_argument('-p', '--print-freq', default=100, type=int,
                         metavar='N', help='print frequency (default: 100)')
     parser.add_argument('--seed', default=None, type=int,

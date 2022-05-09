@@ -137,7 +137,7 @@ class RandomMultipleGallerySampler(Sampler):
 
         return iter(final_idxes)
 
-
+'''
 class CombineDataset(Dataset[T_co]):
     r"""Dataset as a combination of multiple datasets.
     The element of each dataset must be a list, and the i-th element of the combined dataset
@@ -159,7 +159,7 @@ class CombineDataset(Dataset[T_co]):
 
     def __getitem__(self, idx):
         return list(itertools.chain(*[d[idx] for d in self.datasets]))
-
+'''
 
 def concatenate(tensors):
     """concatenate multiple batches into one batch.

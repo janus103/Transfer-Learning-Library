@@ -68,7 +68,12 @@ class Classifier(nn.Module):
             self.head = nn.Linear(self._features_dim, num_classes)
         else:
             self.head = head
+        print(self.head)
         self.finetune = finetune
+        self.layer_br = nn.Sequential(
+            nn.BatchNorm1d(bottleneck_dim),
+            nn.ReLU()
+        )
 
     @property
     def features_dim(self) -> int:
@@ -80,6 +85,7 @@ class Classifier(nn.Module):
         f = self.pool_layer(self.backbone(x))
         f = self.bottleneck(f)
         predictions = self.head(f)
+        f = self.layer_br(f)
         if self.training:
             return predictions, f
         else:

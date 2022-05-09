@@ -203,7 +203,8 @@ def validate(val_loader, model, args, device) -> float:
             print(confmat.format(args.class_names))
 
     return top1.avg
-
+def get_resize_img_custom(size):
+    return T.Resize(size, interpolation=T.functional.InterpolationMode.BILINEAR)
 
 def get_train_transform(resizing='default', random_horizontal_flip=True, random_color_jitter=False,
                         resize_size=224, norm_mean=(0.485, 0.456, 0.406), norm_std=(0.229, 0.224, 0.225)):
@@ -225,12 +226,12 @@ def get_train_transform(resizing='default', random_horizontal_flip=True, random_
         ])
     elif resizing == 'custom.source':
         transform = T.Compose([
-            ResizeImage(448),
+            get_resize_img_custom(448),
             T.CenterCrop(448)
         ])
     elif resizing == 'custom.target':
         transform = T.Compose([
-            ResizeImage(224),
+            get_resize_img_custom(224),
             T.CenterCrop(224)
         ])
     elif resizing == 'ran.crop':
@@ -249,7 +250,10 @@ def get_train_transform(resizing='default', random_horizontal_flip=True, random_
         transforms.append(T.ColorJitter(brightness=0.5, contrast=0.5, saturation=0.5, hue=0.5))
     transforms.extend([
         T.ToTensor()
-        #T.Normalize(mean=norm_mean, std=norm_std)
+        ,T.Normalize(
+                mean=torch.tensor(0.5),
+                std=torch.tensor(0.5))
+
     ])
     return T.Compose(transforms)
 
@@ -273,13 +277,13 @@ def get_target_train_transform(resizing='default', random_horizontal_flip=True, 
         ])
     elif resizing == 'custom.source':
         transform = T.Compose([
-            ResizeImage(448),
+            get_resize_img_custom(448),
             T.CenterCrop(448),
             T.Grayscale(num_output_channels=1)
         ])
     elif resizing == 'custom.target':
         transform = T.Compose([
-            ResizeImage(224),
+            get_resize_img_custom(224),
             T.CenterCrop(224),
             T.Grayscale(num_output_channels=1)
         ])
@@ -299,7 +303,11 @@ def get_target_train_transform(resizing='default', random_horizontal_flip=True, 
         transforms.append(T.ColorJitter(brightness=0.5, contrast=0.5, saturation=0.5, hue=0.5))
     transforms.extend([
         T.ToTensor()
-        #T.Normalize(mean=norm_mean, std=norm_std)
+        #T.Normalize(mean=norm_mean, std=norm_std))
+            ,T.Normalize(
+                mean=torch.tensor(0.5),
+                std=torch.tensor(0.5))
+
     ])
     return T.Compose(transforms)
 
@@ -317,23 +325,23 @@ def get_val_transform(resizing='default', resize_size=224,
         ])
     elif resizing == 'custom.source':
         transform = T.Compose([
-            ResizeImage(448),
+            get_resize_img_custom(448),
             T.CenterCrop(448)
-        ])
+            ])
     elif resizing == 'custom.target':
         transform = T.Compose([
-            ResizeImage(224),
+            get_resize_img_custom(224),
             T.CenterCrop(224)
         ])
     elif resizing == 'custom.source.gray':
         transform = T.Compose([
-            ResizeImage(448),
+            get_resize_img_custom(448),
             T.CenterCrop(448),
             T.Grayscale(num_output_channels=1)
         ])
     elif resizing == 'custom.target.gray':
         transform = T.Compose([
-            ResizeImage(224),
+            get_resize_img_custom(224),
             T.CenterCrop(224),
             T.Grayscale(num_output_channels=1)
         ])
@@ -343,8 +351,8 @@ def get_val_transform(resizing='default', resize_size=224,
         raise NotImplementedError(resizing)
     return T.Compose([
         transform,
-        T.ToTensor()
-        #T.Normalize(mean=norm_mean, std=norm_std)
+        T.ToTensor(),
+        T.Normalize(mean=torch.tensor(0.5),std=torch.tensor(0.5))
     ])
 
 

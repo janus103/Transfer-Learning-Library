@@ -87,7 +87,7 @@ class ImageClassifier(ClassifierBase):
             # nn.AdaptiveAvgPool2d(output_size=(1, 1)),
             # nn.Flatten(),
             nn.Linear(backbone.out_features, bottleneck_dim),
-            nn.BatchNorm1d(bottleneck_dim),
-            nn.ReLU()
+            #nn.BatchNorm1d(bottleneck_dim),
+            #nn.ReLU()
         )
         super(ImageClassifier, self).__init__(backbone, num_classes, bottleneck, bottleneck_dim, **kwargs)

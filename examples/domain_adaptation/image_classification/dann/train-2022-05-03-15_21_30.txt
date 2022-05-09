@@ -1,7 +1,0 @@
-Namespace(arch='resnet50', batch_size=8, bottleneck_dim=256, data='ImageNet50', epochs=1000, iters_per_epoch=1000, log='dann', lr=0.01, lr_decay=0.75, lr_gamma=0.001, momentum=0.9, no_hflip=False, no_pool=False, norm_mean=(0.485, 0.456, 0.406), norm_std=(0.229, 0.224, 0.225), per_class_eval=False, phase='train', print_freq=100, resize_size=224, root='/media/ImageNet_dataset/v100/jin/', scratch=False, seed=None, source=['IN'], target=['gray'], trade_off=1.0, train_resizing='custom.source', val_resizing='custom.source', weight_decay=0.001, workers=2)
-Traceback (most recent call last):
-  File "dann.py", line 300, in <module>
-    main(args)
-  File "dann.py", line 81, in main
-    target_train_transform = utils.get_target_train_transform(args.train_resizing, random_horizontal_flip=not args.no_hflip,
-AttributeError: module 'utils' has no attribute 'get_target_train_transform'

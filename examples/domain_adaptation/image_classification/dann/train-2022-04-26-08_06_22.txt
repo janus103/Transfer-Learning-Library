@@ -1,40 +1,0 @@
-Namespace(arch='resnet50', batch_size=16, bottleneck_dim=256, data='ImageNet50', epochs=300, iters_per_epoch=1000, log='dann', lr=0.01, lr_decay=0.75, lr_gamma=0.001, momentum=0.9, no_hflip=False, no_pool=False, norm_mean=(0.485, 0.456, 0.406), norm_std=(0.229, 0.224, 0.225), per_class_eval=False, phase='train', print_freq=100, resize_size=224, root='/data/ImageNet_dataset/v100/jin/image', scratch=False, seed=None, source=['IN'], target=['gray'], trade_off=1.0, train_resizing='custom.target', val_resizing='custom.target', weight_decay=0.001, workers=2)
-train_transform:  Compose(
-    Compose(
-    ResizeImage(size=(224, 224))
-    CenterCrop(size=(224, 224))
-)
-    RandomHorizontalFlip(p=0.5)
-    ToTensor()
-    Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225))
-)
-val_transform:  Compose(
-    Compose(
-    ResizeImage(size=(224, 224))
-    CenterCrop(size=(224, 224))
-)
-    ToTensor()
-    Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225))
-)
-Downloading image_list
-Downloading https://cloud.tsinghua.edu.cn/seafhttp/files/72f74a91-db58-4a48-b556-92a2d36547cb/image_list.zip to /data/ImageNet_dataset/v100/jin/image/image_list.zip
-  0%|          | 0/1035196 [00:00<?, ?it/s]  2%|1         | 17408/1035196 [00:00<00:06, 156218.39it/s]  5%|4         | 48128/1035196 [00:00<00:04, 214833.76it/s] 11%|#         | 111616/1035196 [00:00<00:02, 360827.72it/s] 23%|##2       | 233472/1035196 [00:00<00:01, 661523.40it/s] 43%|####3     | 445440/1035196 [00:00<00:00, 1142453.17it/s] 73%|#######3  | 755712/1035196 [00:00<00:00, 1767201.16it/s]1035264it [00:00, 1383255.06it/s]                            
-Extracting /data/ImageNet_dataset/v100/jin/image/image_list.zip to /data/ImageNet_dataset/v100/jin/image
-Traceback (most recent call last):
-  File "dann.py", line 290, in <module>
-    main(args)
-  File "dann.py", line 87, in main
-    utils.get_dataset(args.data, args.root, args.source, args.target, train_transform, val_transform)
-  File "/src/Transfer-Learning-Library/examples/domain_adaptation/image_classification/utils.py", line 117, in get_dataset
-    train_target_dataset = concat_dataset(root=root, tasks=target, download=True, transform=train_target_transform)
-  File "/src/Transfer-Learning-Library/examples/domain_adaptation/image_classification/utils.py", line 114, in concat_dataset
-    return ConcatDataset([dataset(task=task, **kwargs) for task in tasks])
-  File "/src/Transfer-Learning-Library/examples/domain_adaptation/image_classification/utils.py", line 114, in <listcomp>
-    return ConcatDataset([dataset(task=task, **kwargs) for task in tasks])
-  File "/src/Transfer-Learning-Library/common/vision/datasets/imagenet50.py", line 72, in __init__
-    super(ImageNet50, self).__init__(root, ImageNet50.CLASSES, data_list_file=data_list_file, **kwargs)
-  File "/src/Transfer-Learning-Library/common/vision/datasets/imagelist.py", line 36, in __init__
-    self.samples = self.parse_data_file(data_list_file)
-  File "/src/Transfer-Learning-Library/common/vision/datasets/imagelist.py", line 67, in parse_data_file
-    with open(file_name, "r") as f:
-FileNotFoundError: [Errno 2] No such file or directory: '/data/ImageNet_dataset/v100/jin/image/image_list/gray.txt'

@@ -97,6 +97,21 @@ class CompleteLogger:
             name = self._get_phase_or_epoch()
         name = str(name)
         return os.path.join(self.checkpoint_directory, name + ".pth")
+    def get_checkpoint_path_jin(self, name=None, seq=None):
+        """
+        Get the full checkpoint path.
+
+        Args:
+            name (optional): the filename (without file extension) to save checkpoint.
+                If None, when the phase is ``train``, checkpoint will be saved to ``{epoch}.pth``.
+                Otherwise, will be saved to ``{phase}.pth``.
+
+        """
+        if name is None:
+            name = self._get_phase_or_epoch()
+        name = str(name)
+        seq = str(seq)
+        return os.path.join(self.checkpoint_directory, name + seq + ".pth")
 
     def close(self):
         self.logger.close()

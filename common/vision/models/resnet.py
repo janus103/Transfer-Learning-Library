@@ -3,13 +3,13 @@ Modified based on torchvision.models.resnet.
 @author: Junguang Jiang
 @contact: JiangJunguang1123@outlook.com
 """
-
+import torch
 import torch.nn as nn
 from torchvision import models
 from torchvision.models.utils import load_state_dict_from_url
 from torchvision.models.resnet import BasicBlock, Bottleneck, model_urls
 import copy
-
+import numpy
 __all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
            'resnet152', 'resnext50_32x4d', 'resnext101_32x8d',
            'wide_resnet50_2', 'wide_resnet101_2']
@@ -21,10 +21,24 @@ class ResNet(models.ResNet):
     def __init__(self, *args, **kwargs):
         super(ResNet, self).__init__(*args, **kwargs)
         self._out_features = self.fc.in_features
-
+        self.conv1_1 = nn.Conv2d(1, 64, 7, stride=2, padding=3, dilation=1, groups=1, bias=False, padding_mode='zeros')
+        
     def forward(self, x):
         """"""
-        x = self.conv1(x)
+        if x.shape[1] == 1:
+            temp_w = self.conv1.weight.data
+            b_size = temp_w.shape[0]
+            paste_w = torch.zeros((b_size,1,7,7))
+            
+            for idx in range(b_size):
+                paste_w[idx] = ((temp_w[idx][0]+temp_w[idx][1]+temp_w[idx][2])/3).unsqueeze(0)
+            self.conv1_1.weight.data = paste_w.to(torch.device('cuda'))
+            self.conv1_1.weight.data.requires_grad = True
+            #print(self.conv1_1.weight.data.requires_grad)
+            #print('-->',self.conv1.weight.data.requires_grad)
+            x = self.conv1_1(x)
+        else:
+            x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)
         x = self.maxpool(x)
